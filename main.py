@@ -27,6 +27,48 @@ scheduler = None
 application = None
 
 
+async def test_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle the /test command - sends countdown to all groups immediately.
+    
+    This is for testing purposes only. Sends the daily countdown message
+    to all configured groups right away.
+    
+    Args:
+        update: Telegram update object
+        context: Telegram context object
+    """
+    logger = logging.getLogger(__name__)
+    
+    try:
+        logger.info(f"Test command triggered by user {update.effective_user.id}")
+        
+        # Send confirmation to user
+        await update.message.reply_text(
+            "🧪 <b>Test Mode</b>\n\n"
+            "Sending countdown message to all groups now...",
+            parse_mode="HTML"
+        )
+        
+        # Call the daily countdown function
+        await send_daily_countdown()
+        
+        # Send success confirmation
+        await update.message.reply_text(
+            "✅ Test message sent to all groups!\n"
+            "Check your groups to verify.",
+            parse_mode="HTML"
+        )
+        
+        logger.info("Test command completed successfully")
+        
+    except Exception as e:
+        logger.error(f"Error in test command: {str(e)}", exc_info=True)
+        await update.message.reply_text(
+            "❌ Error sending test message. Check logs for details.",
+            parse_mode="HTML"
+        )
+
+
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle the /start command.
     
@@ -192,6 +234,7 @@ async def main():
         
         # Add command handlers
         application.add_handler(CommandHandler("start", start_command))
+        application.add_handler(CommandHandler("test", test_command))
         
         # Initialize application
         await application.initialize()
