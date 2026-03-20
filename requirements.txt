@@ -1,0 +1,13 @@
+# Telegram Bot Framework
+python-telegram-bot==20.7
+
+# Web Server for Keep-Alive
+flask==3.0.0
+
+# Task Scheduling
+apscheduler==3.10.4
+
+# Testing Frameworks
+hypothesis==6.92.1
+pytest==7.4.3
+pytest-asyncio==0.21.1
