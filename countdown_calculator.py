@@ -1,70 +1,97 @@
 """Countdown Calculator module for Telegram Graduation Countdown Bot.
 
 This module provides temporal metrics calculation for countdown messages.
+Uses 100-day sprint countdown with Africa/Addis_Ababa timezone.
 """
 
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
+import pytz
 
 
 class CountdownCalculator:
-    """Calculator for countdown metrics and graduation date tracking."""
+    """Calculator for countdown metrics and graduation date tracking.
     
-    START_DATE = date(2021, 10, 1)
+    Uses 100-day sprint countdown starting from 100 days before graduation.
+    All date calculations use Africa/Addis_Ababa timezone.
+    """
+    
     GRADUATION_DATE = date(2026, 6, 27)
+    SPRINT_DAYS = 100
+    TIMEZONE = pytz.timezone('Africa/Addis_Ababa')
+    
+    # Calculate sprint start date (100 days before graduation)
+    START_DATE = GRADUATION_DATE - timedelta(days=SPRINT_DAYS)
     
     @staticmethod
     def days_remaining() -> int:
-        """Returns days from today to graduation date, minimum 0.
+        """Returns days from today to graduation date for 100-day sprint.
         
-        Calculates the number of days between the current date and the
-        graduation date. Returns 0 if the current date is on or after
-        the graduation date.
+        Calculates days remaining in the 100-day sprint countdown.
+        Uses Africa/Addis_Ababa timezone for accurate date calculation.
+        Returns 0 on graduation day, negative if past graduation.
         
         Returns:
-            int: Number of days remaining until graduation (minimum 0).
+            int: Number of days remaining (can be negative if past graduation).
         """
-        today = date.today()
+        # Get current date in Africa/Addis_Ababa timezone
+        now = datetime.now(CountdownCalculator.TIMEZONE)
+        today = now.date()
+        
         delta = CountdownCalculator.GRADUATION_DATE - today
-        return max(0, delta.days)
+        return delta.days
     
     @staticmethod
     def progress_percentage() -> float:
-        """Returns percentage of time elapsed from start to graduation (0-100).
+        """Returns percentage of 100-day sprint completed (0-100).
         
-        Calculates the progress percentage based on the elapsed time from
-        the start date to the current date, relative to the total time
-        from start date to graduation date. The result is clamped to the
-        range [0, 100].
+        Calculates progress based on 100-day sprint countdown.
+        - If more than 100 days remain: 0%
+        - If 0 days remain (graduation day): 100%
+        - If past graduation: 100%
+        
+        Formula: progress = (100 - days_left) for the 100-day sprint
         
         Returns:
             float: Progress percentage clamped to 0-100 range.
         """
-        today = date.today()
-        total_days = (CountdownCalculator.GRADUATION_DATE - CountdownCalculator.START_DATE).days
-        elapsed_days = (today - CountdownCalculator.START_DATE).days
+        days_left = CountdownCalculator.days_remaining()
         
-        if elapsed_days <= 0:
+        # If more than 100 days until graduation, show 0%
+        if days_left > CountdownCalculator.SPRINT_DAYS:
             return 0.0
-        if elapsed_days >= total_days:
+        
+        # If past graduation, show 100%
+        if days_left < 0:
             return 100.0
         
-        percentage = (elapsed_days / total_days) * 100
+        # Calculate progress: (100 - days_left) gives us progress out of 100
+        progress = CountdownCalculator.SPRINT_DAYS - days_left
+        percentage = (progress / CountdownCalculator.SPRINT_DAYS) * 100
+        
         return max(0.0, min(100.0, percentage))
     
     @staticmethod
     def is_graduation_day() -> bool:
         """Returns True if today is graduation date.
         
+        Uses Africa/Addis_Ababa timezone for accurate date check.
+        
         Returns:
             bool: True if current date equals graduation date, False otherwise.
         """
-        return date.today() == CountdownCalculator.GRADUATION_DATE
+        now = datetime.now(CountdownCalculator.TIMEZONE)
+        today = now.date()
+        return today == CountdownCalculator.GRADUATION_DATE
     
     @staticmethod
     def is_past_graduation() -> bool:
         """Returns True if today is after graduation date.
         
+        Uses Africa/Addis_Ababa timezone for accurate date check.
+        
         Returns:
             bool: True if current date is after graduation date, False otherwise.
         """
-        return date.today() > CountdownCalculator.GRADUATION_DATE
+        now = datetime.now(CountdownCalculator.TIMEZONE)
+        today = now.date()
+        return today > CountdownCalculator.GRADUATION_DATE

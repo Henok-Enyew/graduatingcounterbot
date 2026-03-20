@@ -18,7 +18,6 @@ from scheduler import DailyScheduler
 from message_distributor import MessageDistributor
 from countdown_calculator import CountdownCalculator
 from progress_bar_builder import ProgressBarBuilder
-from motivational_message_selector import MotivationalMessageSelector
 from message_formatter import MessageFormatter
 from image_selector import ImageSelector
 
@@ -31,8 +30,8 @@ application = None
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle the /start command.
     
-    Sends a personalized greeting with countdown information as a photo
-    with caption to users who start the bot in direct message.
+    Sends the BiT graduation countdown as a photo with caption
+    to users who start the bot in direct message.
     
     Args:
         update: Telegram update object
@@ -45,20 +44,15 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         calculator = CountdownCalculator()
         days = calculator.days_remaining()
         progress_pct = calculator.progress_percentage()
-        is_grad_day = calculator.is_graduation_day()
-        is_past_grad = calculator.is_past_graduation()
         
         # Generate progress bar
         progress_bar = ProgressBarBuilder.build(progress_pct)
         
-        # Get motivational message
-        motivational_msg = MotivationalMessageSelector.get_message()
-        
-        # Format message for /start command
+        # Format message
         message = MessageFormatter.format_start_command_message(
             days_remaining=days,
             progress_bar=progress_bar,
-            motivational_message=motivational_msg
+            progress_percent=progress_pct
         )
         
         # Get random image
@@ -94,8 +88,8 @@ async def send_daily_countdown():
     """Generate and send daily countdown message to all groups.
     
     This function is called by the scheduler at 00:01 AM daily.
-    It generates the countdown message and distributes it to all
-    configured groups as a photo with caption.
+    It generates the BiT graduation countdown message and distributes
+    it to all configured groups as a photo with caption.
     """
     logger = logging.getLogger(__name__)
     
@@ -110,22 +104,17 @@ async def send_daily_countdown():
         calculator = CountdownCalculator()
         days = calculator.days_remaining()
         progress_pct = calculator.progress_percentage()
-        is_grad_day = calculator.is_graduation_day()
-        is_past_grad = calculator.is_past_graduation()
         
         # Generate progress bar
         progress_bar = ProgressBarBuilder.build(progress_pct)
-        
-        # Get motivational message
-        motivational_msg = MotivationalMessageSelector.get_message()
         
         # Format message
         message = MessageFormatter.format_countdown_message(
             days_remaining=days,
             progress_bar=progress_bar,
-            motivational_message=motivational_msg,
-            is_graduation_day=is_grad_day,
-            is_past_graduation=is_past_grad
+            progress_percent=progress_pct,
+            is_graduation_day=calculator.is_graduation_day(),
+            is_past_graduation=calculator.is_past_graduation()
         )
         
         # Get random image

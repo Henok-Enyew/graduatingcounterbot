@@ -8,6 +8,9 @@ werkzeug==3.0.1
 # Task Scheduling
 apscheduler==3.10.4
 
+# Timezone support
+pytz==2024.1
+
 # Testing Frameworks
 hypothesis==6.92.1
 pytest==7.4.3
