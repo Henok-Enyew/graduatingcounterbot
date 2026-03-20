@@ -5,6 +5,8 @@ Messages include days remaining, progress bars, and motivational content with
 proper formatting and special character escaping.
 """
 
+from graduation_quotes import GraduationQuotes
+
 
 class MessageFormatter:
     """Formats countdown messages for Telegram with proper markup.
@@ -15,14 +17,78 @@ class MessageFormatter:
     """
     
     @staticmethod
+    def format_group_message(
+        days_remaining: int,
+        progress_bar: str,
+        progress_percent: float
+    ) -> str:
+        """Format message for GROUP chats with motivational quote.
+        
+        Creates an energetic group message for BiT Class of 2026.
+        
+        Args:
+            days_remaining: Number of days until graduation
+            progress_bar: Visual progress bar string (25 characters)
+            progress_percent: Progress percentage (0-100)
+            
+        Returns:
+            Formatted message string with HTML markup and quote for Telegram
+        """
+        # Get a random graduation quote
+        quote = GraduationQuotes.get_random_quote()
+        
+        # Handle special cases
+        if days_remaining == 0:
+            return (
+                "🎓 <b>Hello GC People!</b> 🎓\n\n"
+                f"{progress_bar} 100%\n\n"
+                "<b>🎉 TODAY IS THE DAY! 🎉</b>\n"
+                "We made it! Graduation Day is here!\n\n"
+                "Saturday, June 27, 2026\n\n"
+                f"<blockquote>{quote}</blockquote>"
+            )
+        
+        if days_remaining < 0:
+            return (
+                "🎓 <b>Hello GC People!</b> 🎓\n\n"
+                f"{progress_bar} 100%\n\n"
+                "<b>✨ We Did It! ✨</b>\n"
+                "BiT Class of 2026 - Graduated!\n\n"
+                "Saturday, June 27, 2026\n\n"
+                f"<blockquote>{quote}</blockquote>"
+            )
+        
+        # Standard countdown message for groups
+        days_text = "day" if days_remaining == 1 else "days"
+        
+        # Creative group messages based on days remaining
+        if days_remaining <= 10:
+            encouragement = "🔥 Final sprint! We're almost there! Keep pushing!"
+        elif days_remaining <= 30:
+            encouragement = "💪 The finish line is in sight! Stay strong!"
+        elif days_remaining <= 50:
+            encouragement = "⚡ Halfway through! Keep the momentum going!"
+        else:
+            encouragement = "🚀 We're on this journey together! Let's do this!"
+        
+        return (
+            "🎓 <b>Hello GC People!</b> 🎓\n\n"
+            f"{progress_bar} {progress_percent:.0f}%\n\n"
+            f"{encouragement}\n\n"
+            f"Only <b>{days_remaining} {days_text}</b> left until our BiT Graduation!\n"
+            "Saturday, June 27, 2026\n\n"
+            f"<blockquote>{quote}</blockquote>"
+        )
+    
+    @staticmethod
     def format_start_command_message(
         days_remaining: int,
         progress_bar: str,
         progress_percent: float
     ) -> str:
-        """Format the all-in-one caption for /start command and daily messages.
+        """Format message for DIRECT MESSAGE (/start command).
         
-        Creates the unified caption format for BiT graduation countdown.
+        Creates a personal greeting for individual users.
         
         Args:
             days_remaining: Number of days until graduation
@@ -49,7 +115,7 @@ class MessageFormatter:
                 "Saturday, June 27, 2026"
             )
         
-        # Standard countdown message
+        # Standard countdown message for direct messages
         days_text = "day" if days_remaining == 1 else "days"
         
         return (
@@ -67,10 +133,10 @@ class MessageFormatter:
         is_graduation_day: bool = False,
         is_past_graduation: bool = False
     ) -> str:
-        """Format a complete countdown message with all components.
+        """Format a complete countdown message for GROUP chats.
         
-        Uses the unified BiT graduation countdown format.
-        This is the same format as the /start command for consistency.
+        Uses the group message format with motivational quotes.
+        This is for daily automated messages sent to groups.
         
         Args:
             days_remaining: Number of days until graduation (can be negative)
@@ -82,8 +148,8 @@ class MessageFormatter:
         Returns:
             Formatted message string with HTML markup for Telegram
         """
-        # Use the same format as /start command for consistency
-        return MessageFormatter.format_start_command_message(
+        # Use the group message format for daily messages
+        return MessageFormatter.format_group_message(
             days_remaining=days_remaining,
             progress_bar=progress_bar,
             progress_percent=progress_percent
