@@ -1,8 +1,9 @@
-# Telegram Bot Framework
-python-telegram-bot==20.7
+# Telegram Bot Framework (latest version for Python 3.14)
+python-telegram-bot==21.0
 
 # Web Server for Keep-Alive
 flask==3.0.0
+werkzeug==3.0.1
 
 # Task Scheduling
 apscheduler==3.10.4
