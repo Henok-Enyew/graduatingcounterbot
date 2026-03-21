@@ -228,6 +228,10 @@ async def main():
         keep_alive = KeepAliveServer(port)
         keep_alive.start()
         
+        # Give Flask server time to start
+        await asyncio.sleep(2)
+        logger.info("Keep-alive server is ready")
+        
         # Create Telegram application
         logger.info("Initializing Telegram bot...")
         application = Application.builder().token(bot_token).build()
